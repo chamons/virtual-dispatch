@@ -1,0 +1,130 @@
+use macroquad::text::draw_text;
+use macroquad::window::{screen_height, screen_width};
+
+use crate::campaign::CampaignScreenState;
+use crate::mission::MissionState;
+use crate::prelude::*;
+use crate::screens::help::HelpState;
+use crate::screens::options::OptionsState;
+
+#[derive(Debug, Clone)]
+pub struct TitleState {
+    has_save_game: bool,
+    selection: usize,
+}
+
+impl TitleState {
+    pub fn new() -> Self {
+        TitleState {
+            has_save_game: MissionState::savefile_exists(),
+            selection: 0,
+        }
+    }
+
+    pub fn process_frame(&mut self) -> Option<GameFlow> {
+        Screen::draw_centered_text("Virtual Dispatch", 48, 75.0, None);
+
+        let mut offset = 500.0;
+        let mut next_option = 0;
+        if self.has_save_game {
+            let (color, background) = self.title_color_line(next_option);
+            Screen::draw_centered_text_with_color("Load Game", 48, offset, color, background);
+            offset += 50.0;
+            next_option += 1;
+        }
+
+        {
+            let (color, background) = self.title_color_line(next_option);
+            Screen::draw_centered_text_with_color("New Game", 48, offset, color, background);
+            offset += 50.0;
+            next_option += 1;
+        }
+        {
+            let (color, background) = self.title_color_line(next_option);
+            Screen::draw_centered_text_with_color("Options", 48, offset, color, background);
+            offset += 50.0;
+            next_option += 1;
+        }
+        {
+            let (color, background) = self.title_color_line(next_option);
+            Screen::draw_centered_text_with_color("Help", 48, offset, color, background);
+            offset += 50.0;
+            next_option += 1;
+        }
+        {
+            let (color, background) = self.title_color_line(next_option);
+            Screen::draw_centered_text_with_color("Credits", 48, offset, color, background);
+            offset += 50.0;
+            next_option += 1;
+        }
+        {
+            let (color, background) = self.title_color_line(next_option);
+            Screen::draw_centered_text_with_color("Quit", 48, offset, color, background);
+        }
+
+        draw_text(
+            &format!("Version: {VERSION}"),
+            screen_width() - 120.0,
+            screen_height() - 20.0,
+            16.0,
+            WHITE,
+        );
+
+        if is_key_pressed(KeyCode::Down) {
+            if self.selection < self.max_options() {
+                self.selection += 1;
+            }
+        } else if is_key_pressed(KeyCode::Up) {
+            if self.selection > 0 {
+                self.selection -= 1;
+            }
+        } else if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) {
+            if self.has_save_game {
+                match self.selection {
+                    0 => return Some(CampaignScreenState::load_save()),
+                    1 => {
+                        // If you start a new game delete the save anyway
+                        MissionState::delete_any_save();
+                        return Some(GameFlow::Campaign(CampaignScreenState::new()));
+                    }
+                    2 => return Some(GameFlow::Options(OptionsState::new())),
+                    3 => {
+                        return Some(GameFlow::Help(HelpState::new(GameFlow::Title(
+                            self.clone(),
+                        ))));
+                    }
+                    4 => return Some(GameFlow::Credits),
+                    5 | _ => return Some(GameFlow::Quitting),
+                }
+            } else {
+                match self.selection {
+                    0 => {
+                        return Some(GameFlow::Campaign(CampaignScreenState::new()));
+                    }
+                    1 => return Some(GameFlow::Options(OptionsState::new())),
+                    2 => {
+                        return Some(GameFlow::Help(HelpState::new(GameFlow::Title(
+                            self.clone(),
+                        ))));
+                    }
+                    3 => return Some(GameFlow::Credits),
+                    4 | _ => return Some(GameFlow::Quitting),
+                }
+            }
+        }
+
+        None
+    }
+
+    fn max_options(&self) -> usize {
+        if self.has_save_game { 5 } else { 4 }
+    }
+
+    fn title_color_line(&self, current: usize) -> (Color, Option<Color>) {
+        if current == self.selection {
+            (BLUE, Some(WHITE))
+        } else {
+            (WHITE, None)
+        }
+    }
+}

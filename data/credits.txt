@@ -1,0 +1,5 @@
+Developed by Chris Hamons
+
+Source code is available at https://github.com/chamons/virtual-dispatch
+
+Game is powered by Macroquad (https://macroquad.rs/)
