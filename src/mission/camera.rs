@@ -18,11 +18,11 @@ impl Camera {
         }
     }
 
-    pub fn update(&mut self, player_position: Point) {
-        self.left_x = player_position.x - CAMERA_VIEWPORT_WIDTH / 2;
-        self.right_x = player_position.x + CAMERA_VIEWPORT_WIDTH / 2;
-        self.top_y = player_position.y - CAMERA_DISPLAY_HEIGHT / 2;
-        self.bottom_y = player_position.y + CAMERA_DISPLAY_HEIGHT / 2;
+    pub fn update(&mut self, center: Point) {
+        self.left_x = center.x - CAMERA_VIEWPORT_WIDTH / 2;
+        self.right_x = center.x + CAMERA_VIEWPORT_WIDTH / 2;
+        self.top_y = center.y - CAMERA_VIEWPORT_HEIGHT / 2;
+        self.bottom_y = center.y + CAMERA_VIEWPORT_HEIGHT / 2;
     }
 
     pub fn is_in_view(&self, point: Point) -> bool {

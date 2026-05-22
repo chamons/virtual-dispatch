@@ -5,7 +5,7 @@ use macroquad::{
     rand::gen_range,
     shapes::draw_rectangle,
     text::{draw_text, measure_text},
-    texture::{Texture2D, build_textures_atlas},
+    texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture_ex},
     window::screen_width,
 };
 
@@ -136,6 +136,7 @@ impl ScreenInterface for EmptyScreen {
 pub struct Screen {
     pub camera: Camera,
     pub text: Texture2D,
+    pub firewall: Texture2D,
 
     pub floating_text: Option<FloatingText>,
     music: Music,
@@ -150,6 +151,10 @@ impl Screen {
             .await
             .expect("Unable to load art");
 
+        let firewall = macroquad::texture::load_texture("resources/art/firewall.png")
+            .await
+            .expect("Unable to load art");
+
         build_textures_atlas();
 
         let camera = Camera::new();
@@ -158,6 +163,7 @@ impl Screen {
             music,
             camera,
             text,
+            firewall,
             floating_text: None,
             options,
         }
@@ -175,6 +181,19 @@ impl Screen {
             text: text.to_string(),
             timer: TICKS_FLOATING_TEXT * 3,
         });
+    }
+
+    pub fn draw_sprite(&self, _sprite: &str, position: Point) {
+        let texture = &self.firewall;
+        let screen_x: f32 = (position.x - self.camera.left_x) as f32;
+        let screen_y: f32 = (position.y - self.camera.top_y) as f32;
+        draw_texture_ex(
+            texture,
+            screen_x,
+            screen_y,
+            WHITE,
+            DrawTextureParams::default(),
+        );
     }
 
     pub fn render_floating_text(&mut self) {

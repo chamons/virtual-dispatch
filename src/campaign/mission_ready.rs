@@ -11,7 +11,7 @@ impl CampaignState {
     pub fn process_ready_for_mission(&mut self, screen: &mut Screen) -> Option<GameFlow> {
         screen.play_random_music();
 
-        Some(GameFlow::Gameplay(MissionState::new(self.clone())))
+        Some(GameFlow::Gameplay(MissionState::new(self.clone(), "Intro")))
     }
 
     pub fn game_complete(&self) -> bool {

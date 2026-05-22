@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use macroquad::input::{is_key_down, is_quit_requested};
 
 use crate::campaign::CampaignState;
+use crate::mission::{Data, Ice, System};
 use crate::prelude::*;
 use crate::screens::help::HelpState;
 
@@ -11,18 +12,23 @@ pub struct MissionState {
     pub frame: usize,
     pub mission_complete: bool,
     pub campaign: CampaignState,
+    pub system: System,
 }
 
 impl MissionState {
-    pub fn new(campaign: CampaignState) -> MissionState {
+    pub fn new(campaign: CampaignState, name: &str) -> MissionState {
+        let data = Data::load().expect("Unable to load data");
+        let system = data.get_system_info(name).instance(&data);
+
         Self {
             frame: 0,
             mission_complete: false,
             campaign,
+            system,
         }
     }
 
-    pub fn process_frame(&mut self, _screen: &mut Screen) -> Option<GameFlow> {
+    pub fn process_frame(&mut self, screen: &mut Screen) -> Option<GameFlow> {
         self.frame += 1;
 
         loop {
@@ -40,6 +46,9 @@ impl MissionState {
                     self.clone(),
                 ))));
             }
+
+            self.system.render(screen);
+
             break;
         }
 
