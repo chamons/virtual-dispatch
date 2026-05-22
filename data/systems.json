@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Intro",
+    "ice": [
+      {
+        "name": "Firewall",
+        "id": 0,
+        "position": { "x": 25, "y": 25 },
+        "inputs": [],
+        "outputs": [1]
+      },
+      {
+        "name": "Firewall",
+        "id": 1,
+        "position": { "x": 75, "y": 25 },
+        "inputs": [0],
+        "outputs": []
+      }
+    ]
+  }
+]

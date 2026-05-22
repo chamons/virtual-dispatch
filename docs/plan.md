@@ -1,6 +1,5 @@
 # Toy Game
 
-- Load description of system nodes and system from file
 - Draw nodes on screen
 - Draw connections between nodes with lines
 - Draw cursor that can scroll
