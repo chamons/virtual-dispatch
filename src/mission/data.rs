@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::mission::*;
 use crate::prelude::*;
 
@@ -17,6 +19,7 @@ impl IceInfo {
             sprite: self.sprite.clone(),
             position,
             id: IceId(id),
+            inputs: vec![],
             outputs: vec![],
         }
     }
@@ -39,7 +42,7 @@ pub struct SystemInfo {
 
 impl SystemInfo {
     pub fn instance(&self, data: &Data) -> System {
-        let ice = self
+        let mut ice: Vec<Ice> = self
             .ice
             .iter()
             .map(|ice_info| {
@@ -50,6 +53,17 @@ impl SystemInfo {
                 ice
             })
             .collect();
+        // Collect a reverse map of outputs
+        let mut input_data = HashMap::<IceId, Vec<IceId>>::new();
+        for i in &ice {
+            for output in &i.outputs {
+                input_data.entry(*output).or_default().push(i.id);
+            }
+        }
+        // To setup input mapping
+        for i in &mut ice {
+            i.inputs = input_data.get(&i.id).cloned().unwrap_or_default();
+        }
         System {
             name: self.name.clone(),
             ice,
@@ -58,8 +72,8 @@ impl SystemInfo {
 }
 
 pub struct Data {
-    ice: Vec<IceInfo>,
-    systems: Vec<SystemInfo>,
+    pub ice: Vec<IceInfo>,
+    pub systems: Vec<SystemInfo>,
 }
 
 impl Data {
@@ -86,11 +100,27 @@ impl Data {
 
 #[cfg(test)]
 mod tests {
-    use crate::mission::*;
+    use crate::mission::{test_utils::simple_test_system, *};
 
     #[test]
     fn can_parse() {
         let data = Data::load().unwrap();
         let _ = data.get_system_info("Intro").instance(&data);
+    }
+
+    #[test]
+    fn back_wires_system_inputs() {
+        let data = Data {
+            ice: vec![IceInfo {
+                name: String::default(),
+                sprite: String::default(),
+            }],
+            systems: vec![simple_test_system()],
+        };
+        let system = data.get_system_info("first").instance(&data);
+        assert_eq!(system.find_ice(IceId(0)).unwrap().inputs, vec![IceId(2)]);
+        assert_eq!(system.find_ice(IceId(1)).unwrap().inputs, vec![IceId(0)]);
+        assert_eq!(system.find_ice(IceId(2)).unwrap().inputs, vec![IceId(0)]);
+        assert_eq!(system.find_ice(IceId(3)).unwrap().inputs, vec![]);
     }
 }

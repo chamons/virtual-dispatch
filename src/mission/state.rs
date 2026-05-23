@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use macroquad::input::{is_key_down, is_quit_requested};
 
 use crate::campaign::CampaignState;
-use crate::mission::{Data, System};
+use crate::mission::{Cursor, Data, IceId, System};
 use crate::prelude::*;
 use crate::screens::help::HelpState;
 
@@ -13,6 +13,7 @@ pub struct MissionState {
     pub mission_complete: bool,
     pub campaign: CampaignState,
     pub system: System,
+    pub cursor: Cursor,
 }
 
 impl MissionState {
@@ -25,6 +26,7 @@ impl MissionState {
             mission_complete: false,
             campaign,
             system,
+            cursor: Cursor::new(),
         }
     }
 
@@ -47,7 +49,19 @@ impl MissionState {
                 ))));
             }
 
+            #[cfg(debug_assertions)]
+            if is_key_pressed(KeyCode::F1) {
+                self.process_debug_request(DebugRequest::Save, screen);
+            }
+            #[cfg(debug_assertions)]
+            if is_key_pressed(KeyCode::F2) {
+                self.process_debug_request(DebugRequest::Load, screen);
+            }
+
+            self.cursor.handle_input(&self.system);
+
             self.system.render(screen);
+            self.cursor.render(screen, &self.system);
 
             break;
         }
@@ -63,29 +77,16 @@ pub enum DebugRequest {
     Load,
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
-pub enum RequestedAction {
-    #[cfg(debug_assertions)]
-    DebugMenu(DebugRequest),
-}
-
 impl MissionState {
-    // Screen used in debug
-    #[allow(unused_variables)]
-    fn process_action(&mut self, action: RequestedAction, screen: &mut Screen) {
+    fn process_debug_request(&mut self, action: DebugRequest, screen: &mut Screen) {
+        screen.push_floating_text(&format!("Running debug command: {action:?}"));
         match action {
-            #[cfg(debug_assertions)]
-            RequestedAction::DebugMenu(command) => {
-                screen.push_floating_text(&format!("Running debug command: {command:?}"));
-                match command {
-                    DebugRequest::Save => {
-                        std::fs::write("dev.save", self.save_to_string()).expect("Unable to save");
-                    }
-                    DebugRequest::Load => {
-                        if let Ok(text) = std::fs::read("dev.save") {
-                            *self = serde_json::from_slice(&text).expect("Unable to load dev save");
-                        }
-                    }
+            DebugRequest::Save => {
+                std::fs::write("dev.save", self.save_to_string()).expect("Unable to save");
+            }
+            DebugRequest::Load => {
+                if let Ok(text) = std::fs::read("dev.save") {
+                    *self = serde_json::from_slice(&text).expect("Unable to load dev save");
                 }
             }
         }

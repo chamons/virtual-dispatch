@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::{
     audio::{PlaySoundParams, Sound, load_sound, play_sound, set_sound_volume, stop_sound},
     rand::gen_range,
-    shapes::{draw_line, draw_rectangle},
+    shapes::{draw_line, draw_rectangle, draw_rectangle_lines},
     text::{draw_text, measure_text},
     texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture_ex},
     window::screen_width,
@@ -212,6 +212,10 @@ impl Screen {
             2.0,
             WHITE,
         );
+    }
+
+    pub fn draw_cursor(&self, position: Point) {
+        draw_rectangle_lines(position.x as f32, position.y as f32, 48., 48., 2., WHITE);
     }
 
     pub fn draw_sprite(&self, _sprite: &str, position: Point) {
