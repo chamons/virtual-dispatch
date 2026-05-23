@@ -6,22 +6,23 @@
         "name": "Firewall",
         "id": 0,
         "position": { "x": 25, "y": 25 },
-        "inputs": [],
         "outputs": [1, 2]
       },
       {
         "name": "Firewall",
         "id": 1,
-        "position": { "x": 375, "y": 25 },
-        "inputs": [0],
-        "outputs": []
+        "position": { "x": 375, "y": 25 }
       },
       {
         "name": "Firewall",
         "id": 2,
         "position": { "x": 375, "y": 325 },
-        "inputs": [0],
-        "outputs": []
+        "outputs": [3]
+      },
+      {
+        "name": "Firewall",
+        "id": 3,
+        "position": { "x": 575, "y": 625 }
       }
     ]
   }

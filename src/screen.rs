@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::{
     audio::{PlaySoundParams, Sound, load_sound, play_sound, set_sound_volume, stop_sound},
     rand::gen_range,
-    shapes::draw_rectangle,
+    shapes::{draw_line, draw_rectangle},
     text::{draw_text, measure_text},
     texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture_ex},
     window::screen_width,
@@ -181,6 +181,37 @@ impl Screen {
             text: text.to_string(),
             timer: TICKS_FLOATING_TEXT * 3,
         });
+    }
+
+    pub fn draw_trace(&self, start_position: Point, end_position: Point) {
+        let mid_x = start_position.x as f32 + (end_position.x - start_position.x) as f32 / 2.0;
+        // Draw one line half the distance first horizontal
+        draw_line(
+            start_position.x as f32,
+            start_position.y as f32,
+            mid_x,
+            start_position.y as f32,
+            2.0,
+            WHITE,
+        );
+        // Then down
+        draw_line(
+            mid_x,
+            start_position.y as f32,
+            mid_x,
+            end_position.y as f32,
+            2.0,
+            WHITE,
+        );
+        // And now the rest of the way across
+        draw_line(
+            mid_x,
+            end_position.y as f32,
+            end_position.x as f32,
+            end_position.y as f32,
+            2.0,
+            WHITE,
+        );
     }
 
     pub fn draw_sprite(&self, _sprite: &str, position: Point) {

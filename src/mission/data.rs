@@ -17,7 +17,6 @@ impl IceInfo {
             sprite: self.sprite.clone(),
             position,
             id: IceId(id),
-            inputs: vec![],
             outputs: vec![],
         }
     }
@@ -28,7 +27,7 @@ pub struct IceInstanceInfo {
     pub name: String,
     pub id: u32,
     pub position: Point,
-    pub inputs: Vec<u32>,
+    #[serde(default)]
     pub outputs: Vec<u32>,
 }
 
@@ -47,7 +46,6 @@ impl SystemInfo {
                 let mut ice = data
                     .get_ice_info(&ice_info.name)
                     .instance(ice_info.id, ice_info.position);
-                ice.inputs = ice_info.inputs.iter().map(|i| IceId(*i)).collect();
                 ice.outputs = ice_info.outputs.iter().map(|i| IceId(*i)).collect();
                 ice
             })

@@ -1,7 +1,5 @@
 # Toy Game
 
-- Draw nodes on screen
-- Draw connections between nodes with lines
 - Draw cursor that can scroll
 - Draw player position
 - Move between nodes in system

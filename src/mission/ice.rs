@@ -11,6 +11,5 @@ pub struct Ice {
     pub sprite: String,
     pub position: Point,
     pub id: IceId,
-    pub inputs: Vec<IceId>,
     pub outputs: Vec<IceId>,
 }

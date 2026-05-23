@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use macroquad::input::{is_key_down, is_quit_requested};
 
 use crate::campaign::CampaignState;
-use crate::mission::{Data, Ice, System};
+use crate::mission::{Data, System};
 use crate::prelude::*;
 use crate::screens::help::HelpState;
 
