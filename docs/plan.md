@@ -1,6 +1,6 @@
 # Toy Game
 
-- Reduce number of if let in find up/downstream
+- Use timer not raw frame count
 - Render floating text during main loop
 - Draw cursor that can scroll
 - Animate that movement

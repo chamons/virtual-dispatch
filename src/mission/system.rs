@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    mission::{Ice, IceId},
+    mission::{Ice, IceId, Player},
     screen::Screen,
     util::Point,
 };
@@ -29,5 +29,10 @@ impl System {
 
     pub fn find_ice(&self, id: IceId) -> Option<&Ice> {
         self.ice.iter().find(|i| i.id == id)
+    }
+
+    pub fn find_player_ice(&self, player: &Player) -> &Ice {
+        self.find_ice(player.position)
+            .expect("Player must always be at a valid location")
     }
 }

@@ -52,9 +52,7 @@ impl Cursor {
     }
 
     fn draw_cursor(&mut self, screen: &mut Screen, system: &System, player: &Player, color: Color) {
-        if let Some(current_ice) = system.find_ice(player.position) {
-            screen.draw_ice_rectangle(current_ice.position, color);
-        }
+        screen.draw_ice_rectangle(system.find_player_ice(player).position, color);
     }
 
     pub fn handle_input(&mut self, system: &System, player: &mut Player) {
@@ -75,42 +73,42 @@ impl Cursor {
     }
 
     fn find_upstream_node(&self, system: &System, player: &Player) -> Option<IceId> {
-        if let Some(current_ice) = system.find_ice(player.position) {
-            if let Some(current_target) = self.target {
-                if let Some(current_index) = current_ice
-                    .inputs
-                    .iter()
-                    .position(|id| *id == current_target)
-                {
-                    // Get the next in the list looping around if we hit the end
-                    return match current_ice.inputs.get(current_index + 1) {
-                        Some(next) => Some(*next),
-                        None => current_ice.inputs.first().cloned(),
-                    };
-                }
-            } else {
-                return current_ice.inputs.first().cloned();
+        let current_ice = system.find_player_ice(player);
+
+        if let Some(current_target) = self.target {
+            if let Some(current_index) = current_ice
+                .inputs
+                .iter()
+                .position(|id| *id == current_target)
+            {
+                // Get the next in the list looping around if we hit the end
+                return match current_ice.inputs.get(current_index + 1) {
+                    Some(next) => Some(*next),
+                    None => current_ice.inputs.first().cloned(),
+                };
             }
+        } else {
+            return current_ice.inputs.first().cloned();
         }
         None
     }
+
     fn find_downstream_node(&self, system: &System, player: &Player) -> Option<IceId> {
-        if let Some(current_ice) = system.find_ice(player.position) {
-            if let Some(current_target) = self.target {
-                if let Some(current_index) = current_ice
-                    .outputs
-                    .iter()
-                    .position(|id| *id == current_target)
-                {
-                    // Get the next in the list looping around if we hit the end
-                    return match current_ice.outputs.get(current_index + 1) {
-                        Some(next) => Some(*next),
-                        None => current_ice.outputs.first().cloned(),
-                    };
-                }
-            } else {
-                return current_ice.outputs.first().cloned();
+        let current_ice = system.find_player_ice(player);
+        if let Some(current_target) = self.target {
+            if let Some(current_index) = current_ice
+                .outputs
+                .iter()
+                .position(|id| *id == current_target)
+            {
+                // Get the next in the list looping around if we hit the end
+                return match current_ice.outputs.get(current_index + 1) {
+                    Some(next) => Some(*next),
+                    None => current_ice.outputs.first().cloned(),
+                };
             }
+        } else {
+            return current_ice.outputs.first().cloned();
         }
         None
     }
