@@ -91,8 +91,8 @@ pub mod prelude {
 
     pub use serde::{Deserialize, Serialize};
 
-    pub const SCREEN_WIDTH: i32 = 80;
-    pub const SCREEN_HEIGHT: i32 = 50;
+    pub const SCREEN_WIDTH: i32 = 1024;
+    pub const SCREEN_HEIGHT: i32 = 800;
 
     pub const CAMERA_VIEWPORT_WIDTH: i32 = SCREEN_WIDTH / 2;
     pub const CAMERA_VIEWPORT_HEIGHT: i32 = SCREEN_HEIGHT / 2;

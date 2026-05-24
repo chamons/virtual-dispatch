@@ -1,8 +1,6 @@
 # Toy Game
 
 - Draw cursor that can scroll
-- Draw player position
-- Move between nodes in system
 - Animate that movement
 - Add console which mirrors all of above
 - Add a popup showing current ice stats

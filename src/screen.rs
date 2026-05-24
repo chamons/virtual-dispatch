@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use macroquad::{
     audio::{PlaySoundParams, Sound, load_sound, play_sound, set_sound_volume, stop_sound},
     rand::gen_range,
-    shapes::{draw_line, draw_rectangle},
+    shapes::{draw_line, draw_rectangle, draw_rectangle_lines},
     text::{draw_text, measure_text},
     texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture_ex},
     window::screen_width,
@@ -214,6 +214,10 @@ impl Screen {
         );
     }
 
+    pub fn draw_ice_rectangle(&self, position: Point, color: Color) {
+        draw_rectangle_lines(position.x as f32, position.y as f32, 48., 48., 2., color);
+    }
+
     pub fn draw_sprite(&self, _sprite: &str, position: Point) {
         let texture = &self.firewall;
         let screen_x: f32 = (position.x - self.camera.left_x) as f32;
@@ -281,6 +285,10 @@ impl Screen {
         }
 
         draw_text(text, text_x, y, size as f32, text_color);
+    }
+
+    pub fn draw_text_with_color(text: &str, size: u16, x: f32, y: f32, text_color: Color) {
+        draw_text(text, x, y, size as f32, text_color);
     }
 
     pub async fn load(&mut self) {
