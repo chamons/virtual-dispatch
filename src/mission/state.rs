@@ -65,6 +65,8 @@ impl MissionState {
             self.system.render(screen);
             self.cursor.render(screen, &self.system, &self.player);
 
+            screen.render_floating_text();
+
             break;
         }
 
