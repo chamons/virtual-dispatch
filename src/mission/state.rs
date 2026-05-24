@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use macroquad::input::{is_key_down, is_quit_requested};
 
 use crate::campaign::CampaignState;
-use crate::mission::{Cursor, Data, IceId, System};
+use crate::mission::{Cursor, Data, Player, System};
 use crate::prelude::*;
 use crate::screens::help::HelpState;
 
@@ -13,6 +13,7 @@ pub struct MissionState {
     pub mission_complete: bool,
     pub campaign: CampaignState,
     pub system: System,
+    pub player: Player,
     pub cursor: Cursor,
 }
 
@@ -27,6 +28,7 @@ impl MissionState {
             campaign,
             system,
             cursor: Cursor::new(),
+            player: Player::new(),
         }
     }
 
@@ -58,10 +60,12 @@ impl MissionState {
                 self.process_debug_request(DebugRequest::Load, screen);
             }
 
-            self.cursor.handle_input(&self.system);
+            self.cursor.handle_input(&self.system, &mut self.player);
 
             self.system.render(screen);
-            self.cursor.render(screen, &self.system);
+            self.cursor.render(screen, &self.system, &self.player);
+
+            screen.render_floating_text();
 
             break;
         }
