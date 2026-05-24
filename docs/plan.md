@@ -1,5 +1,7 @@
 # Toy Game
 
+- Reduce number of if let in find up/downstream
+- Render floating text during main loop
 - Draw cursor that can scroll
 - Animate that movement
 - Add console which mirrors all of above
