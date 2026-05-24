@@ -1,0 +1,6 @@
+[submodule "resources"]
+	path = resources
+	url = git@github.com:chamons/virtual-dispatch-resources.git
+[submodule "web/resources"]
+	path = web/resources
+	url = git@github.com:chamons/virtual-dispatch-resources.git
