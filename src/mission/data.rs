@@ -120,7 +120,11 @@ mod tests {
         let system = data.get_system_info("first").instance(&data);
         assert_eq!(system.find_ice(IceId(0)).unwrap().inputs, vec![IceId(2)]);
         assert_eq!(system.find_ice(IceId(1)).unwrap().inputs, vec![IceId(0)]);
-        assert_eq!(system.find_ice(IceId(2)).unwrap().inputs, vec![IceId(0)]);
+        assert_eq!(
+            system.find_ice(IceId(2)).unwrap().inputs,
+            vec![IceId(0), IceId(3)]
+        );
         assert_eq!(system.find_ice(IceId(3)).unwrap().inputs, vec![]);
+        assert_eq!(system.find_ice(IceId(4)).unwrap().inputs, vec![]);
     }
 }

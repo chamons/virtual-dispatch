@@ -39,6 +39,12 @@ pub fn simple_test_system() -> SystemInfo {
                 name: String::default(),
                 id: 3,
                 position: Point::new(0, 0),
+                outputs: vec![2],
+            },
+            IceInstanceInfo {
+                name: String::default(),
+                id: 4,
+                position: Point::new(0, 0),
                 outputs: vec![],
             },
         ],
