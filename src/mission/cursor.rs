@@ -12,7 +12,7 @@ use crate::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Cursor {
     frame: usize,
-    cursor: IceId,
+    current: IceId,
     target: Option<IceId>,
 }
 
@@ -20,7 +20,7 @@ impl Cursor {
     pub fn new() -> Self {
         Self {
             frame: 0,
-            cursor: IceId(0),
+            current: IceId(0),
             target: None,
         }
     }
@@ -32,15 +32,15 @@ impl Cursor {
         let should_draw = cursor_frame < 110;
 
         if let Some(cursor_target) = self.target {
-            if let Some(ice) = system.find_ice(cursor_target) {
+            if let Some(cursor_ice) = system.find_ice(cursor_target) {
                 if should_draw {
-                    screen.draw_ice_rectangle(ice.position, BLUE);
+                    screen.draw_ice_rectangle(cursor_ice.position, BLUE);
                 }
                 Screen::draw_text_with_color(
                     "JMP TO?",
                     21,
-                    ice.position.x as f32 - 5.,
-                    ice.position.y as f32 - 5.,
+                    cursor_ice.position.x as f32 - 5.,
+                    cursor_ice.position.y as f32 - 5.,
                     BLUE,
                 );
             }
@@ -54,8 +54,8 @@ impl Cursor {
     }
 
     fn draw_cursor(&mut self, screen: &mut Screen, system: &System, color: Color) {
-        if let Some(ice) = system.find_ice(self.cursor) {
-            screen.draw_ice_rectangle(ice.position, color);
+        if let Some(current_ice) = system.find_ice(self.current) {
+            screen.draw_ice_rectangle(current_ice.position, color);
         }
     }
 
@@ -70,14 +70,14 @@ impl Cursor {
             self.target = self.find_downstream_node(system);
         } else if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) {
             if let Some(target) = self.target {
-                self.cursor = target;
+                self.current = target;
             }
             self.target = None;
         }
     }
 
     fn find_upstream_node(&self, system: &System) -> Option<IceId> {
-        if let Some(current_ice) = system.find_ice(self.cursor) {
+        if let Some(current_ice) = system.find_ice(self.current) {
             if let Some(current_target) = self.target {
                 if let Some(current_index) = current_ice
                     .inputs
@@ -97,7 +97,7 @@ impl Cursor {
         None
     }
     fn find_downstream_node(&self, system: &System) -> Option<IceId> {
-        if let Some(current_ice) = system.find_ice(self.cursor) {
+        if let Some(current_ice) = system.find_ice(self.current) {
             if let Some(current_target) = self.target {
                 if let Some(current_index) = current_ice
                     .outputs
@@ -132,13 +132,13 @@ mod tests {
         let mut cursor = Cursor::new();
 
         // First node has only one upstream
-        cursor.cursor = IceId(0);
+        cursor.current = IceId(0);
         assert_eq!(cursor.find_upstream_node(&system), Some(IceId(2)));
         cursor.target = Some(IceId(2));
         assert_eq!(cursor.find_upstream_node(&system), Some(IceId(2)));
 
         // Node 2 has two upstream
-        cursor.cursor = IceId(2);
+        cursor.current = IceId(2);
         cursor.target = None;
         assert_eq!(cursor.find_upstream_node(&system), Some(IceId(0)));
         cursor.target = Some(IceId(0));
@@ -147,7 +147,7 @@ mod tests {
         assert_eq!(cursor.find_upstream_node(&system), Some(IceId(0)));
 
         // Node 4 has no upstream
-        cursor.cursor = IceId(4);
+        cursor.current = IceId(4);
         cursor.target = None;
         assert_eq!(cursor.find_upstream_node(&system), None);
     }
@@ -159,21 +159,21 @@ mod tests {
         let mut cursor = Cursor::new();
 
         // First node has two downstream
-        cursor.cursor = IceId(0);
+        cursor.current = IceId(0);
         assert_eq!(cursor.find_downstream_node(&system), Some(IceId(1)));
         cursor.target = Some(IceId(1));
         assert_eq!(cursor.find_downstream_node(&system), Some(IceId(2)));
         cursor.target = Some(IceId(2));
         assert_eq!(cursor.find_downstream_node(&system), Some(IceId(1)));
 
-        cursor.cursor = IceId(2);
+        cursor.current = IceId(2);
         cursor.target = None;
         assert_eq!(cursor.find_downstream_node(&system), Some(IceId(0)));
         cursor.target = Some(IceId(0));
         assert_eq!(cursor.find_downstream_node(&system), Some(IceId(0)));
 
         // Node 4 has no downstream
-        cursor.cursor = IceId(4);
+        cursor.current = IceId(4);
         cursor.target = None;
         assert_eq!(cursor.find_downstream_node(&system), None);
     }
