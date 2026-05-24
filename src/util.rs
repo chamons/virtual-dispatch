@@ -1,4 +1,4 @@
-use macroquad::math::Vec2;
+use macroquad::{math::Vec2, miniquad::native::apple::frameworks::Sel};
 use serde::{Deserialize, Serialize};
 
 // Point and Rect in macroquad use f32
@@ -110,5 +110,144 @@ impl Rect {
                 f(Point::new(x, y));
             }
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Timer {
+    duration: u32,
+    remaining: u32,
+    resets: bool,
+}
+
+impl Timer {
+    pub fn new(duration: u32, resets: bool) -> Self {
+        Self {
+            duration,
+            remaining: duration,
+            resets,
+        }
+    }
+
+    // Returns true when fires
+    pub fn tick(&mut self) -> bool {
+        if self.remaining == 0 {
+            false
+        } else {
+            self.remaining -= 1;
+            let completed = self.remaining == 0;
+            if completed && self.resets {
+                self.reset();
+            }
+            completed
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.remaining = self.duration;
+    }
+}
+
+// Returns true during the on window and then resets
+// during the off window
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OnOffTimer {
+    on: Timer,
+    off: Timer,
+    is_on: bool,
+}
+
+impl OnOffTimer {
+    pub fn new(on_duration: u32, off_duration: u32) -> Self {
+        OnOffTimer {
+            on: Timer::new(on_duration, false),
+            off: Timer::new(off_duration, false),
+            is_on: true,
+        }
+    }
+
+    // Returns true when in the on window
+    pub fn tick(&mut self) -> bool {
+        if self.is_on {
+            let on_window_complete = self.on.tick();
+            if on_window_complete {
+                self.is_on = false;
+                self.on.reset();
+            }
+            true
+        } else {
+            let off_window_complete = self.off.tick();
+            if off_window_complete {
+                self.is_on = true;
+                self.off.reset();
+            }
+            false
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.is_on = true;
+        self.on.reset();
+        self.off.reset();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::util::{OnOffTimer, Timer};
+
+    #[test]
+    fn timer_fires() {
+        let mut timer = Timer::new(2, false);
+        assert!(!timer.tick());
+        assert!(timer.tick());
+        assert!(!timer.tick());
+        assert!(!timer.tick());
+    }
+
+    #[test]
+    fn timer_fires_and_resets() {
+        let mut timer = Timer::new(2, true);
+        assert!(!timer.tick());
+        assert!(timer.tick());
+        assert!(!timer.tick());
+        assert!(timer.tick());
+        assert!(!timer.tick());
+        assert!(timer.tick());
+    }
+
+    #[test]
+    fn timer_reset() {
+        let mut timer = Timer::new(2, false);
+        assert!(!timer.tick());
+        timer.reset();
+        assert_eq!(2, timer.remaining);
+        assert!(!timer.tick());
+        assert!(timer.tick());
+    }
+
+    #[test]
+    fn on_off_timer_fires() {
+        let mut timer = OnOffTimer::new(4, 2);
+        assert!(timer.tick());
+        assert!(timer.tick());
+        assert!(timer.tick());
+        assert!(timer.tick());
+        assert!(!timer.tick());
+        assert!(!timer.tick());
+        assert!(timer.tick());
+    }
+
+    #[test]
+    fn on_off_timer_reset() {
+        let mut timer = OnOffTimer::new(3, 1);
+        assert!(timer.tick());
+        assert!(timer.tick());
+        timer.reset();
+        assert!(timer.tick());
+        assert!(timer.tick());
+        assert!(timer.tick());
+        assert!(!timer.tick());
+        assert!(timer.tick());
     }
 }

@@ -7,27 +7,25 @@ use serde::{Deserialize, Serialize};
 use crate::{
     mission::{IceId, Player, System},
     screen::Screen,
+    util::OnOffTimer,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Cursor {
-    frame: usize,
     target: Option<IceId>,
+    blink: OnOffTimer,
 }
 
 impl Cursor {
     pub fn new() -> Self {
         Self {
-            frame: 0,
             target: None,
+            blink: OnOffTimer::new(110, 40),
         }
     }
 
     pub fn render(&mut self, screen: &mut Screen, system: &System, player: &Player) {
-        self.frame += 1;
-
-        let cursor_frame = self.frame % 150;
-        let should_draw = cursor_frame < 110;
+        let should_draw = self.blink.tick();
 
         if let Some(cursor_target) = self.target {
             if let Some(cursor_ice) = system.find_ice(cursor_target) {
@@ -59,16 +57,19 @@ impl Cursor {
         if is_key_pressed(KeyCode::Left) | is_key_pressed(KeyCode::Kp4) | is_key_pressed(KeyCode::H)
         {
             self.target = self.find_upstream_node(system, player);
+            self.blink.reset();
         } else if is_key_pressed(KeyCode::Right)
             | is_key_pressed(KeyCode::Kp6)
             | is_key_pressed(KeyCode::L)
         {
             self.target = self.find_downstream_node(system, player);
+            self.blink.reset();
         } else if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) {
             if let Some(target) = self.target {
                 player.position = target;
             }
             self.target = None;
+            self.blink.reset();
         }
     }
 
