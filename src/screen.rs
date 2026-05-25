@@ -5,8 +5,8 @@ use macroquad::{
     rand::gen_range,
     shapes::{draw_line, draw_rectangle, draw_rectangle_lines},
     text::{draw_text, measure_text},
-    texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture_ex},
-    window::screen_width,
+    texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture, draw_texture_ex},
+    window::{screen_width, set_fullscreen},
 };
 
 use crate::prelude::*;
@@ -235,6 +235,29 @@ impl Screen {
         );
     }
 
+    pub fn draw_filled_rectangle_with_border(
+        &self,
+        rect: Rect,
+        outer_color: Color,
+        inner_color: Color,
+    ) {
+        draw_rectangle(
+            rect.x1 as f32,
+            rect.y1 as f32,
+            rect.width() as f32,
+            rect.height() as f32,
+            inner_color,
+        );
+        draw_rectangle_lines(
+            rect.x1 as f32,
+            rect.y1 as f32,
+            rect.width() as f32,
+            rect.height() as f32,
+            4.,
+            outer_color,
+        );
+    }
+
     pub fn draw_sprite(&self, _sprite: &str, position: Point) {
         let texture = &self.firewall;
         let screen_x: f32 = (position.x - self.camera.left_x) as f32;
@@ -306,6 +329,10 @@ impl Screen {
 
     pub fn draw_text_with_color(text: &str, size: u16, x: f32, y: f32, text_color: Color) {
         draw_text(text, x, y, size as f32, text_color);
+    }
+
+    pub fn draw_line(x: f32, y: f32, width: u32, height: u32, color: Color) {
+        macroquad::shapes::draw_line(x, y, x + width as f32, y + height as f32, 1., color);
     }
 
     pub async fn load(&mut self) {
