@@ -98,6 +98,8 @@ impl MissionState {
             None
         };
 
+        self.console.handle_input();
+
         match action {
             Some(PlayerAction::Debug(action)) => self.process_debug_request(action, screen),
             Some(PlayerAction::Jump(ice)) => {

@@ -68,6 +68,8 @@ impl Cursor {
             self.target = self.find_upstream_node(system, player);
             if let Some(target) = self.target {
                 console.update_current_command(format!("JMP({})", target.0));
+            } else {
+                console.clear_current_command();
             }
             self.blink.reset();
         } else if is_key_pressed(KeyCode::Right)
@@ -77,6 +79,8 @@ impl Cursor {
             self.target = self.find_downstream_node(system, player);
             if let Some(target) = self.target {
                 console.update_current_command(format!("JMP({})", target.0));
+            } else {
+                console.clear_current_command();
             }
             self.blink.reset();
         } else if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) {
