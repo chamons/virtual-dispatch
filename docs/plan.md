@@ -1,7 +1,5 @@
 # Toy Game
 
-- Draw cursor that can scroll
-- Animate that movement
 - Add console which mirrors all of above
 - Add a popup showing current ice stats
 - Add time based system

@@ -39,6 +39,10 @@ impl MissionState {
     }
 
     pub fn process_frame(&mut self, screen: &mut Screen) -> Option<GameFlow> {
+        if self.frame == 0 {
+            self.center_camera_on_player(screen);
+        }
+
         self.frame += 1;
 
         loop {
@@ -82,7 +86,10 @@ impl MissionState {
     fn process_input(&mut self, screen: &mut Screen) {
         let action = if let Some(action) = self.handle_debug_input() {
             Some(action)
-        } else if let Some(action) = self.cursor.handle_input(&self.system, &mut self.player) {
+        } else if let Some(action) =
+            self.cursor
+                .handle_input(&self.system, &mut self.player, screen)
+        {
             Some(action)
         } else {
             None
@@ -92,9 +99,16 @@ impl MissionState {
             Some(PlayerAction::Debug(action)) => self.process_debug_request(action, screen),
             Some(PlayerAction::Jump(ice)) => {
                 self.player.position = ice;
+                self.center_camera_on_player(screen);
             }
             None => {}
         }
+    }
+
+    fn center_camera_on_player(&mut self, screen: &mut Screen) {
+        let ice_position = self.system.find_player_ice(&self.player).position;
+        const CAMERA_OFFSET: Point = Point::new(SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5);
+        screen.camera.point_centered(ice_position + CAMERA_OFFSET);
     }
 
     fn handle_debug_input(&self) -> Option<PlayerAction> {
@@ -125,6 +139,7 @@ impl MissionState {
             DebugRequest::Load => {
                 if let Ok(text) = std::fs::read("dev.save") {
                     *self = serde_json::from_slice(&text).expect("Unable to load dev save");
+                    self.center_camera_on_player(screen);
                 }
             }
         }

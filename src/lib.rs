@@ -94,9 +94,6 @@ pub mod prelude {
     pub const SCREEN_WIDTH: i32 = 1024;
     pub const SCREEN_HEIGHT: i32 = 800;
 
-    pub const CAMERA_VIEWPORT_WIDTH: i32 = SCREEN_WIDTH / 2;
-    pub const CAMERA_VIEWPORT_HEIGHT: i32 = SCREEN_HEIGHT / 2;
-
     pub const TICKS_FLOATING_TEXT: u32 = 120;
 
     pub const VERSION: &str = "0.01";

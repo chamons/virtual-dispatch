@@ -18,11 +18,18 @@ impl Camera {
         }
     }
 
-    pub fn update(&mut self, center: Point) {
-        self.left_x = center.x - CAMERA_VIEWPORT_WIDTH / 2;
-        self.right_x = center.x + CAMERA_VIEWPORT_WIDTH / 2;
-        self.top_y = center.y - CAMERA_VIEWPORT_HEIGHT / 2;
-        self.bottom_y = center.y + CAMERA_VIEWPORT_HEIGHT / 2;
+    pub fn point_centered(&mut self, center: Point) {
+        self.left_x = center.x - SCREEN_WIDTH / 2;
+        self.right_x = center.x + SCREEN_WIDTH / 2;
+        self.top_y = center.y - SCREEN_HEIGHT / 2;
+        self.bottom_y = center.y + SCREEN_HEIGHT / 2;
+    }
+
+    pub fn scroll(&mut self, delta: Point) {
+        self.left_x += delta.x;
+        self.right_x += delta.x;
+        self.top_y += delta.y;
+        self.bottom_y += delta.y;
     }
 
     pub fn is_in_view(&self, point: Point) -> bool {
