@@ -24,3 +24,6 @@ pub mod test_utils;
 
 mod player;
 pub use player::*;
+
+mod console;
+pub use console::*;

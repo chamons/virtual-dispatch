@@ -10,6 +10,7 @@ fn window_conf() -> Conf {
             medium: include_bytes!("../icon/32").clone(),
             small: include_bytes!("../icon/16").clone(),
         }),
+        window_resizable: false,
         ..Default::default()
     }
 }

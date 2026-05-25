@@ -5,7 +5,7 @@ use macroquad::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    mission::{IceId, Player, PlayerAction, System},
+    mission::{Console, IceId, Player, PlayerAction, System},
     screen::Screen,
     util::{OnOffTimer, Point},
 };
@@ -57,6 +57,7 @@ impl Cursor {
         &mut self,
         system: &System,
         player: &mut Player,
+        console: &mut Console,
         screen: &mut Screen,
     ) -> Option<PlayerAction> {
         let shift_held = is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift);
@@ -65,12 +66,18 @@ impl Cursor {
             || is_key_pressed(KeyCode::H)
         {
             self.target = self.find_upstream_node(system, player);
+            if let Some(target) = self.target {
+                console.update_current_command(format!("JMP({})", target.0));
+            }
             self.blink.reset();
         } else if is_key_pressed(KeyCode::Right)
             | is_key_pressed(KeyCode::Kp6)
             | is_key_pressed(KeyCode::L)
         {
             self.target = self.find_downstream_node(system, player);
+            if let Some(target) = self.target {
+                console.update_current_command(format!("JMP({})", target.0));
+            }
             self.blink.reset();
         } else if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) {
             let target = self.target;
@@ -79,7 +86,12 @@ impl Cursor {
             if let Some(target) = target {
                 return Some(PlayerAction::Jump(target));
             }
+        } else if is_key_pressed(KeyCode::Escape) {
+            console.clear_current_command();
+            self.target = None;
+            self.blink.reset();
         }
+
         // These are not exclusive, so you can scroll up and left at same time
         if (is_key_down(KeyCode::Left) || is_key_down(KeyCode::Kp4) || is_key_down(KeyCode::H))
             && shift_held

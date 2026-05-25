@@ -101,6 +101,14 @@ impl Rect {
         self.x1 <= other.x2 && self.x2 >= other.x1 && self.y1 <= other.y2 && self.y2 >= other.y1
     }
 
+    pub fn width(&self) -> u32 {
+        (self.x2 - self.x1) as u32
+    }
+
+    pub fn height(&self) -> u32 {
+        (self.y2 - self.y1) as u32
+    }
+
     pub fn for_each<F>(&self, mut f: F)
     where
         F: FnMut(Point),

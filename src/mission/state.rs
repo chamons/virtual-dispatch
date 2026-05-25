@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use macroquad::input::{is_key_down, is_quit_requested};
 
 use crate::campaign::CampaignState;
-use crate::mission::{Cursor, Data, IceId, Player, System};
+use crate::mission::{Console, Cursor, Data, IceId, Player, System};
 use crate::prelude::*;
 use crate::screens::help::HelpState;
 
@@ -21,6 +21,7 @@ pub struct MissionState {
     pub system: System,
     pub player: Player,
     pub cursor: Cursor,
+    pub console: Console,
 }
 
 impl MissionState {
@@ -35,6 +36,7 @@ impl MissionState {
             system,
             cursor: Cursor::new(),
             player: Player::new(),
+            console: Console::new(),
         }
     }
 
@@ -74,6 +76,7 @@ impl MissionState {
 
             self.system.render(screen);
             self.cursor.render(screen, &self.system, &self.player);
+            self.console.render(screen);
 
             screen.render_floating_text();
 
@@ -88,7 +91,7 @@ impl MissionState {
             Some(action)
         } else if let Some(action) =
             self.cursor
-                .handle_input(&self.system, &mut self.player, screen)
+                .handle_input(&self.system, &mut self.player, &mut self.console, screen)
         {
             Some(action)
         } else {
@@ -100,6 +103,7 @@ impl MissionState {
             Some(PlayerAction::Jump(ice)) => {
                 self.player.position = ice;
                 self.center_camera_on_player(screen);
+                self.console.push_command_to_log();
             }
             None => {}
         }

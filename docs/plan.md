@@ -1,6 +1,5 @@
 # Toy Game
 
-- Add console which mirrors all of above
 - Add a popup showing current ice stats
 - Add time based system
 - Load / Execute Programs
