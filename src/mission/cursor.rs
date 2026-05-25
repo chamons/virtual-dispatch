@@ -5,7 +5,7 @@ use macroquad::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    mission::{IceId, Player, System},
+    mission::{IceId, Player, PlayerAction, System},
     screen::Screen,
     util::OnOffTimer,
 };
@@ -53,7 +53,7 @@ impl Cursor {
         screen.draw_ice_rectangle(system.find_player_ice(player).position, color);
     }
 
-    pub fn handle_input(&mut self, system: &System, player: &mut Player) {
+    pub fn handle_input(&mut self, system: &System, player: &mut Player) -> Option<PlayerAction> {
         if is_key_pressed(KeyCode::Left) | is_key_pressed(KeyCode::Kp4) | is_key_pressed(KeyCode::H)
         {
             self.target = self.find_upstream_node(system, player);
@@ -65,12 +65,14 @@ impl Cursor {
             self.target = self.find_downstream_node(system, player);
             self.blink.reset();
         } else if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) {
-            if let Some(target) = self.target {
-                player.position = target;
-            }
+            let target = self.target;
             self.target = None;
             self.blink.reset();
+            if let Some(target) = target {
+                return Some(PlayerAction::Jump(target));
+            }
         }
+        None
     }
 
     fn find_upstream_node(&self, system: &System, player: &Player) -> Option<IceId> {
