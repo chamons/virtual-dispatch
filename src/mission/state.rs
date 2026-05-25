@@ -3,9 +3,15 @@ use std::path::PathBuf;
 use macroquad::input::{is_key_down, is_quit_requested};
 
 use crate::campaign::CampaignState;
-use crate::mission::{Cursor, Data, Player, System};
+use crate::mission::{Cursor, Data, IceId, Player, System};
 use crate::prelude::*;
 use crate::screens::help::HelpState;
+
+pub enum PlayerAction {
+    #[cfg(debug_assertions)]
+    Debug(DebugRequest),
+    Jump(IceId),
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MissionState {
@@ -33,6 +39,10 @@ impl MissionState {
     }
 
     pub fn process_frame(&mut self, screen: &mut Screen) -> Option<GameFlow> {
+        if self.frame == 0 {
+            self.center_camera_on_player(screen);
+        }
+
         self.frame += 1;
 
         loop {
@@ -60,7 +70,7 @@ impl MissionState {
                 self.process_debug_request(DebugRequest::Load, screen);
             }
 
-            self.cursor.handle_input(&self.system, &mut self.player);
+            self.process_input(screen);
 
             self.system.render(screen);
             self.cursor.render(screen, &self.system, &self.player);
@@ -71,6 +81,44 @@ impl MissionState {
         }
 
         None
+    }
+
+    fn process_input(&mut self, screen: &mut Screen) {
+        let action = if let Some(action) = self.handle_debug_input() {
+            Some(action)
+        } else if let Some(action) =
+            self.cursor
+                .handle_input(&self.system, &mut self.player, screen)
+        {
+            Some(action)
+        } else {
+            None
+        };
+
+        match action {
+            Some(PlayerAction::Debug(action)) => self.process_debug_request(action, screen),
+            Some(PlayerAction::Jump(ice)) => {
+                self.player.position = ice;
+                self.center_camera_on_player(screen);
+            }
+            None => {}
+        }
+    }
+
+    fn center_camera_on_player(&mut self, screen: &mut Screen) {
+        let ice_position = self.system.find_player_ice(&self.player).position;
+        const CAMERA_OFFSET: Point = Point::new(SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5);
+        screen.camera.point_centered(ice_position + CAMERA_OFFSET);
+    }
+
+    fn handle_debug_input(&self) -> Option<PlayerAction> {
+        if cfg!(debug_assertions) && is_key_pressed(KeyCode::F1) {
+            Some(PlayerAction::Debug(DebugRequest::Save))
+        } else if cfg!(debug_assertions) && is_key_pressed(KeyCode::F2) {
+            Some(PlayerAction::Debug(DebugRequest::Load))
+        } else {
+            None
+        }
     }
 }
 
@@ -91,6 +139,7 @@ impl MissionState {
             DebugRequest::Load => {
                 if let Ok(text) = std::fs::read("dev.save") {
                     *self = serde_json::from_slice(&text).expect("Unable to load dev save");
+                    self.center_camera_on_player(screen);
                 }
             }
         }

@@ -184,6 +184,16 @@ impl Screen {
     }
 
     pub fn draw_trace(&self, start_position: Point, end_position: Point) {
+        // Offset the start and end position by the camera
+        let start_position = Point::new(
+            start_position.x - self.camera.left_x,
+            start_position.y - self.camera.top_y,
+        );
+        let end_position = Point::new(
+            end_position.x - self.camera.left_x,
+            end_position.y - self.camera.top_y,
+        );
+
         let mid_x = start_position.x as f32 + (end_position.x - start_position.x) as f32 / 2.0;
         // Draw one line half the distance first horizontal
         draw_line(
@@ -215,7 +225,14 @@ impl Screen {
     }
 
     pub fn draw_ice_rectangle(&self, position: Point, color: Color) {
-        draw_rectangle_lines(position.x as f32, position.y as f32, 48., 48., 2., color);
+        draw_rectangle_lines(
+            (position.x - self.camera.left_x) as f32,
+            (position.y - self.camera.top_y) as f32,
+            48.,
+            48.,
+            2.,
+            color,
+        );
     }
 
     pub fn draw_sprite(&self, _sprite: &str, position: Point) {

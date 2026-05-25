@@ -1,13 +1,13 @@
 use macroquad::{
     color::{BLUE, Color, GRAY, WHITE},
-    input::{KeyCode, is_key_pressed},
+    input::{KeyCode, is_key_down, is_key_pressed},
 };
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    mission::{IceId, Player, System},
+    mission::{IceId, Player, PlayerAction, System},
     screen::Screen,
-    util::OnOffTimer,
+    util::{OnOffTimer, Point},
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,8 +35,8 @@ impl Cursor {
                 Screen::draw_text_with_color(
                     "JMP TO?",
                     21,
-                    cursor_ice.position.x as f32 - 5.,
-                    cursor_ice.position.y as f32 - 5.,
+                    cursor_ice.position.x as f32 - 5. - screen.camera.left_x as f32,
+                    cursor_ice.position.y as f32 - 5. - screen.camera.top_y as f32,
                     BLUE,
                 );
             }
@@ -53,8 +53,16 @@ impl Cursor {
         screen.draw_ice_rectangle(system.find_player_ice(player).position, color);
     }
 
-    pub fn handle_input(&mut self, system: &System, player: &mut Player) {
-        if is_key_pressed(KeyCode::Left) | is_key_pressed(KeyCode::Kp4) | is_key_pressed(KeyCode::H)
+    pub fn handle_input(
+        &mut self,
+        system: &System,
+        player: &mut Player,
+        screen: &mut Screen,
+    ) -> Option<PlayerAction> {
+        let shift_held = is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift);
+        if is_key_pressed(KeyCode::Left)
+            || is_key_pressed(KeyCode::Kp4)
+            || is_key_pressed(KeyCode::H)
         {
             self.target = self.find_upstream_node(system, player);
             self.blink.reset();
@@ -65,12 +73,35 @@ impl Cursor {
             self.target = self.find_downstream_node(system, player);
             self.blink.reset();
         } else if is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::KpEnter) {
-            if let Some(target) = self.target {
-                player.position = target;
-            }
+            let target = self.target;
             self.target = None;
             self.blink.reset();
+            if let Some(target) = target {
+                return Some(PlayerAction::Jump(target));
+            }
         }
+        // These are not exclusive, so you can scroll up and left at same time
+        if (is_key_down(KeyCode::Left) || is_key_down(KeyCode::Kp4) || is_key_down(KeyCode::H))
+            && shift_held
+        {
+            screen.camera.scroll(Point::new(-3, 0));
+        }
+        if is_key_down(KeyCode::Right) | is_key_down(KeyCode::Kp6) | is_key_down(KeyCode::L)
+            && shift_held
+        {
+            screen.camera.scroll(Point::new(3, 0));
+        }
+        if is_key_down(KeyCode::Up) | is_key_down(KeyCode::Kp8) | is_key_down(KeyCode::K)
+            && shift_held
+        {
+            screen.camera.scroll(Point::new(0, -3));
+        }
+        if is_key_down(KeyCode::Down) | is_key_down(KeyCode::Kp2) | is_key_down(KeyCode::J)
+            && shift_held
+        {
+            screen.camera.scroll(Point::new(0, 3));
+        }
+        None
     }
 
     fn find_upstream_node(&self, system: &System, player: &Player) -> Option<IceId> {
