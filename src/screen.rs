@@ -5,8 +5,8 @@ use macroquad::{
     rand::gen_range,
     shapes::{draw_line, draw_rectangle, draw_rectangle_lines},
     text::{draw_text, measure_text},
-    texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture, draw_texture_ex},
-    window::{screen_width, set_fullscreen},
+    texture::{DrawTextureParams, Texture2D, build_textures_atlas, draw_texture_ex},
+    window::screen_width,
 };
 
 use crate::prelude::*;
@@ -222,6 +222,45 @@ impl Screen {
             2.0,
             WHITE,
         );
+    }
+
+    pub fn render_ice_popup(&mut self, ice: &Ice, is_popup: bool) {
+        let ice_popup_width = self.ice_popup_width(ice);
+        let ice_popup_height = self.ice_popup_height(ice);
+        let popup_x = ice.position.x - self.camera.left_x + 40;
+        let popup_y = ice.position.y - self.camera.top_y - 10 - ice_popup_height;
+        let y_offset = if is_popup { -15 } else { 0 };
+        let popup_alpha = if is_popup { 0.4 } else { 0.7 };
+        let popup_border = if is_popup { GRAY } else { LIGHTGRAY };
+
+        self.draw_filled_rectangle_with_border(
+            Rect::with_size(
+                popup_x,
+                popup_y + y_offset,
+                ice_popup_width,
+                ice_popup_height,
+            ),
+            popup_border,
+            Color::new(0.00, 0.47, 0.95, popup_alpha),
+        );
+
+        let text_color = if is_popup { LIGHTGRAY } else { WHITE };
+        Screen::draw_text_with_color(
+            &ice.name,
+            19,
+            popup_x as f32 + 8.,
+            (popup_y + 20 + y_offset) as f32,
+            text_color,
+        );
+    }
+
+    fn ice_popup_width(&self, ice: &Ice) -> i32 {
+        let title_width = measure_text(&ice.name, None, 19, 1.0).width;
+        title_width as i32 + 16
+    }
+
+    fn ice_popup_height(&self, _ice: &Ice) -> i32 {
+        40
     }
 
     pub fn draw_ice_rectangle(&self, position: Point, color: Color) {
