@@ -10,6 +10,7 @@ const SYSTEMS_JSON: &str = include_str!("../../data/systems.json");
 pub struct IceInfo {
     pub name: String,
     pub sprite: String,
+    pub subroutines: Vec<Subroutine>,
 }
 
 impl IceInfo {
@@ -21,6 +22,7 @@ impl IceInfo {
             id: IceId(id),
             inputs: vec![],
             outputs: vec![],
+            subroutines: self.subroutines.clone(),
         }
     }
 }
@@ -114,6 +116,7 @@ mod tests {
             ice: vec![IceInfo {
                 name: String::default(),
                 sprite: String::default(),
+                subroutines: vec![],
             }],
             systems: vec![simple_test_system()],
         };

@@ -1,6 +1,13 @@
 [
   {
     "name": "Firewall",
-    "sprite": "firewall.png"
+    "sprite": "firewall.png",
+    "subroutines": [
+      { "name": "Halt", "effect": { "Passive": "Halt" } },
+      {
+        "name": "Print",
+        "effect": { "Active": { "effect": "Print" } }
+      }
+    ]
   }
 ]

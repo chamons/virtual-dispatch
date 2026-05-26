@@ -8,6 +8,7 @@ pub fn simple_data() -> Data {
         ice: vec![IceInfo {
             name: String::default(),
             sprite: String::default(),
+            subroutines: vec![],
         }],
         systems: vec![simple_test_system()],
     }

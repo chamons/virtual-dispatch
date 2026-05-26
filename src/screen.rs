@@ -252,15 +252,36 @@ impl Screen {
             (popup_y + 20 + y_offset) as f32,
             text_color,
         );
+        for (i, subroutine) in ice.subroutines.iter().enumerate() {
+            Screen::draw_text_with_color(
+                &subroutine.to_string(),
+                19,
+                popup_x as f32 + 8.,
+                (popup_y + 40 + y_offset + (20 * i as i32)) as f32,
+                text_color,
+            );
+        }
     }
 
     fn ice_popup_width(&self, ice: &Ice) -> i32 {
-        let title_width = measure_text(&ice.name, None, 19, 1.0).width;
-        title_width as i32 + 16
+        let title_width = measure_text(&ice.name, None, 19, 1.0).width as i32;
+        let subroutine_width = ice
+            .subroutines
+            .iter()
+            .map(|s| 3 + measure_text(&s.to_string(), None, 19, 1.0).width as i32)
+            .max()
+            .unwrap_or_default();
+
+        [title_width, subroutine_width]
+            .iter()
+            .max()
+            .cloned()
+            .unwrap_or_default()
+            + 16
     }
 
-    fn ice_popup_height(&self, _ice: &Ice) -> i32 {
-        40
+    fn ice_popup_height(&self, ice: &Ice) -> i32 {
+        40 + ice.subroutines.len() as i32 * 20
     }
 
     pub fn draw_ice_rectangle(&self, position: Point, color: Color) {

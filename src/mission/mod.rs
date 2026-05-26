@@ -27,3 +27,9 @@ pub use player::*;
 
 mod console;
 pub use console::*;
+
+mod time;
+pub use time::*;
+
+mod subroutine;
+pub use subroutine::*;
