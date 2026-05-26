@@ -74,7 +74,7 @@ impl MissionState {
 
             self.process_input(screen);
 
-            self.system.render(screen);
+            self.system.render(screen, &self.player);
             self.cursor.render(screen, &self.system, &self.player);
             self.console.render(screen);
 

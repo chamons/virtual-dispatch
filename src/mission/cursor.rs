@@ -12,7 +12,7 @@ use crate::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Cursor {
-    target: Option<IceId>,
+    pub target: Option<IceId>,
     blink: OnOffTimer,
 }
 
@@ -39,6 +39,8 @@ impl Cursor {
                     cursor_ice.position.y as f32 - 5. - screen.camera.top_y as f32,
                     BLUE,
                 );
+
+                screen.render_ice_popup(cursor_ice, true);
             }
 
             self.draw_cursor(screen, system, player, GRAY);
@@ -61,9 +63,10 @@ impl Cursor {
         screen: &mut Screen,
     ) -> Option<PlayerAction> {
         let shift_held = is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift);
-        if is_key_pressed(KeyCode::Left)
-            || is_key_pressed(KeyCode::Kp4)
-            || is_key_pressed(KeyCode::H)
+        if !shift_held
+            && (is_key_pressed(KeyCode::Left)
+                || is_key_pressed(KeyCode::Kp4)
+                || is_key_pressed(KeyCode::H))
         {
             self.target = self.find_upstream_node(system, player);
             if let Some(target) = self.target {
@@ -72,9 +75,10 @@ impl Cursor {
                 console.clear_current_command();
             }
             self.blink.reset();
-        } else if is_key_pressed(KeyCode::Right)
-            | is_key_pressed(KeyCode::Kp6)
-            | is_key_pressed(KeyCode::L)
+        } else if !shift_held
+            && (is_key_pressed(KeyCode::Right)
+                | is_key_pressed(KeyCode::Kp6)
+                | is_key_pressed(KeyCode::L))
         {
             self.target = self.find_downstream_node(system, player);
             if let Some(target) = self.target {

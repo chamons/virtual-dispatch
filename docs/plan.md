@@ -1,6 +1,5 @@
 # Toy Game
 
-- Add a popup showing current ice stats
 - Add time based system
 - Load / Execute Programs
 - Programs can impact current ice (start with bypass)

@@ -14,7 +14,7 @@ pub struct System {
 }
 
 impl System {
-    pub fn render(&self, screen: &mut Screen) {
+    pub fn render(&self, screen: &mut Screen, player: &Player) {
         for ice in &self.ice {
             screen.draw_sprite(&ice.sprite, ice.position);
             for output_id in &ice.outputs {
@@ -25,6 +25,8 @@ impl System {
                 }
             }
         }
+
+        screen.render_ice_popup(self.find_player_ice(player), false);
     }
 
     pub fn find_ice(&self, id: IceId) -> Option<&Ice> {
